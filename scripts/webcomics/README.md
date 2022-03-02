@@ -1,0 +1,1 @@
+A simple batch script to open webcomics according to the days they update.  Not exactly as good as an RSS feed, as it doesn't actually do any "checks," but it also allows me to track comics that I enjoy but have not caught up on.

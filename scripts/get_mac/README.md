@@ -1,0 +1,1 @@
+This progam should be stored on a central server, if possible.  It grabs the MAC addresses from the computers it is run from, and then appends the MAC address to a singular file.  I use this for quickly pulling MAC addresses from new computers that need to be added to the DHCP network.
