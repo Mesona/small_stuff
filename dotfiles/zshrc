@@ -1,0 +1,60 @@
+export ZSH="/Users/$USER/.oh-my-zsh"
+
+ZSH_THEME="random"
+
+ZSH_THEME_RANDOM_CANDIDATES=(
+    "alanpeabody"
+    "eastwood"
+)
+
+CASE_SENSITIVE="true"
+
+HIST_STAMPS="yyyy/mm/dd"
+
+plugins=(
+    git
+)
+
+fg() {
+    if [[ $# -eq 1 && $1 = - ]]; then
+        builtin fg %-
+    else
+        builtin fg %"$@"
+    fi
+}
+
+bg() {
+    if [[ $# -eq 1 && $1 = - ]]; then
+        builtin bg %-
+    else
+        builtin bg %"$@"
+    fi
+}
+
+source $ZSH/oh-my-zsh.sh
+
+export CLICOLOR=1
+export LSCOLORS=gafxcxdxbxegedabagacad
+
+# Command overwrites
+alias python="python3"
+alias pip="pip3"
+
+# Custom commands
+alias activate="source .venv/bin/activate"
+alias black-line-fix="black -l 80 --experimental-string-processing"
+alias black="black -l 80 -S"
+
+# Common typos
+alias sourve="source"
+alias soure="source"
+
+# Fix for osx Big Sur pyenv issues
+# https://github.com/pyenv/pyenv/issues/1740
+# export PATH="$HOME/.pyenv/bin:$PATH"
+export PATH="/usr/local/bin:$PATH"
+
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+export LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
+export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
