@@ -1,4 +1,4 @@
-filetype plugin indent on    
+filetype plugin indent on
 syntax on               "syntax coloring is a first-cut debugging tool
 set nu
 set incsearch           "search as you type
@@ -74,7 +74,7 @@ vnoremap p pgvy
         nnoremap q :qall<cr>
 
         "show me the top of the "new" file
-        autocmd VimEnter * normal lgg
+        autocmd VimEnter * normal ^Wlgg
 
         silent! set diffopt+=hiddenoff
         silent! set diffopt+=algorithm:patience
@@ -135,9 +135,25 @@ noremap <Leader>sc :w\|SyntasticCheck<CR>
 "set sts=2 sw=2 et
 " Works for OSX
 set expandtab
-set tabstop=2
+set tabstop=4
 set softtabstop=2
-set shiftwidth=2
+set shiftwidth=4
+
+" Run black on save in .py files
+autocmd VimLeave *.py execute ':Black'
+
+" Black uses system version rather than virtualenv
+" let g:black_use_virtualenv = 0
+
+" Autoreload after modifying .vimrc.
+augroup reload_vimrc " {
+    autocmd!
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END " }
+
+" Automatically grant sh files +x
+autocmd BufWinEnter ~/scripts/* if &ft == "" | setlocal ft=sh | endif
+autocmd BufWritePost * if &ft == "sh" | silent! execute "!chmod +x %" | endif
 
 " Set this. Airline will handle the rest.
 let g:airline#extensions#ale#enabled = 1
@@ -147,4 +163,42 @@ set mouse&
 set sts=4 sw=4 et
 set modeline
 
+
 set re=0
+
+" Automatically install vim-plug
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin()
+
+Plug 'rust-lang/rust.vim'
+Plug 'dense-analysis/ale'
+Plug 'prabirshrestha/vim-lsp'
+
+call plug#end()
+
+" Set up Ruff Language Server
+if executable('ruff')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'ruff',
+        \ 'cmd': {server_info->['ruff', 'server']},
+        \ 'allowlist': ['python'],
+        \ 'workspace_config': {},
+        \ })
+endif
+
+" Linters
+let g:ale_linters = { "python": ["ruff"] }
+let g:ale_linters = {'yaml': ['spectral']}
+let g:ale_linters = {'go': ['golangcli-lint']}
+let g:ale_linters = {'json': ['jsonlint']}
+
+" Fixers
+let g:ale_fixers = { "python": ["ruff", "ruff_format"] }
+
+let g:ale_completion_enabled = 1
+let b:ale_fix_on_save = 1
