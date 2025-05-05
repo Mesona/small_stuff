@@ -1,0 +1,84 @@
+[user]
+    name = Kyle Fischer
+    email = kfischer@nvidia.com
+[core]
+    excludesfile = ~/.gitignore_global
+[init]
+	defaultBranch = dev
+[color]
+    ui = auto
+[pack]
+    threads = 0
+    packSizeLimit = 64m
+[diff]
+    renamelimit = 0
+    tool = vimdiff
+    algorithm = histogram
+    # detect renames and copies by default
+    renames = copy
+    color-moved = zebra
+    # relative = false  # break git-vimdiff otherwise
+    relative = true  # less useful otherwise
+    # SADFACE: these don't work (yet?)
+    find-renames = 0.1
+    find-copies =  0.1
+    find-copies-harder = true
+[difftool]
+    prompt = false
+[difftool "vimdiff"]
+    # unset GIT_EXTERNAL_DIFF, to allow :!git diff to work
+    # unset GIT_DIR and GIT_WORK_TREE, because it confuses GitSigns badly
+    # The `vim` command is the same that git would use by default, except
+    # missing a -R (readonly) option.
+    cmd = env \
+        vim -f -d -c \"wincmd l\" \"$LOCAL\" \"$GIT_PREFIX/$MERGED\"
+        #--unset=GIT_EXTERNAL_DIFF \
+        #--unset=GIT_DIR \
+        #--unset=GIT_WORK_TREE \
+        #--chdir=\"$GIT_PREFIX\" \
+        #vim -f -d -c \"wincmd l\" \"$LOCAL\" \"$MERGED\"
+        # or maybe:
+[merge]
+    renamelimit = 0
+    tool = vimmerge
+    conflictstyle = diff3
+[mergetool]
+    prompt = false
+    keepBackup = false
+    trustExitCode = true
+[mergetool "vimmerge"]
+    cmd = vimmerge $REMOTE $MERGED $LOCAL $BASE
+[push]
+    default = current
+[pull]
+    ff = only
+[advice]
+    detachedHead = false
+[alias]
+    l = log --oneline --graph --decorate --color=always --pretty=format:\"%C(auto)%h %C(bold blue)%aL %Cgreen(%cr)%C(auto)%d%Creset %s\"
+    xl = l --all
+    ff = !sh -exc 'git pull --ff "$@"' -
+    branch-name = symbolic-ref -q --short HEAD
+    tag-name = !sh -exc 'git tag -l --points-at ${1:-HEAD}' -
+    base = !sh -exc 'git merge-base "$(git upstream)" ${1:-HEAD}' -
+    diffbase = !git dt $(git base)
+    feature = !sh -ec 'b="bukzor/$1" && shift 1 && set -x && git master && git checkout -b "$b" "$@"' -
+    vimdiff = difftool
+    dt = difftool
+    d = diff
+    mt = mergetool
+    wip = commit -m 'WIP' --no-verify
+    amend = commit --amend --no-edit
+    amendall = amend --all
+    co = checkout
+    ci = commit
+    top = rev-parse --show-toplevel
+    s = status -s
+    topic = !set -x && git fetch origin master && git checkout FETCH_HEAD -b
+    top = rev-parse --show-toplevel
+[http]
+    cookiefile = ~/.gitcookies
+[include]
+    path = ./private-dotfiles/.gitconfig
+
+# vim:sts=4:sw=4:et:
