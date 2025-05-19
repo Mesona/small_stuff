@@ -174,7 +174,7 @@ if [ -e "$HOME/private-dotfiles/.zshrc" ]; then
     source "$HOME/private-dotfiles/.zshrc"
 fi
 
-export PS1="%D{%f} %T %n@%~ $ "
+# export PS1="%D{%f} %T %n@%~ $ "
 export GOBIN="/opt/homebrew/bin/"
 export PATH="$PATH:$GOBIN"
 export CLICOLOR=1
