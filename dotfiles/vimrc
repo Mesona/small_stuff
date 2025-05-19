@@ -192,12 +192,14 @@ if executable('ruff')
 endif
 
 " Linters
+" let g:ale_linters = { "python": ["ruff"] }
 let g:ale_linters = { "python": ["ruff"] }
 let g:ale_linters = {'yaml': ['spectral']}
 let g:ale_linters = {'go': ['golangcli-lint']}
 let g:ale_linters = {'json': ['jsonlint']}
 
 " Fixers
+" let g:ale_fixers = { "python": ["ruff", "ruff_format"] }
 let g:ale_fixers = { "python": ["ruff", "ruff_format"] }
 
 let g:ale_completion_enabled = 1
