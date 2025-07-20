@@ -1,8 +1,5 @@
 day=`date "+%a"`
 
-# AWS Discount Code:
-# AVYACH28YGH7PEAL
-
 # Daily Webcomics
 #open -a "Safari" http://www.explosm.net/ | tr -d '\r'
 open -a "Safari" http://questionablecontent.net/ | tr -d '\r'
