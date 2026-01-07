@@ -1,6 +1,6 @@
 [user]
-    name = Kyle Fischer
-    email = kfischer@nvidia.com
+	name = PUT_LDAP_HERE
+    email = PUT_EMAIL_HERE
 [core]
     excludesfile = ~/.gitignore_global
 [init]
