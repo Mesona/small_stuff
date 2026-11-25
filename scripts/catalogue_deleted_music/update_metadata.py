@@ -1,5 +1,6 @@
-import os
 import json
+import os
+import re
 from pathlib import Path
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, TALB, TYER, TCON
@@ -15,7 +16,7 @@ MODEL_NAME = "llama3" # Change to your preferred local model
 MUSIC_DIR = "/home/mesona/Downloads/NotYetCleanedMusic/AITest"
 
 def get_metadata_from_ai(title, artist):
-    """Calls the AI to get corrected metadata."""
+    """Calls the AI to get corrected metadata with extra safety for JSON parsing."""
     prompt = f"""
     Provide accurate music metadata for the song: "{title}" by "{artist}".
     Return the result strictly as a JSON object with these keys:
@@ -28,11 +29,19 @@ def get_metadata_from_ai(title, artist):
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        # Use .strip() and check for content to avoid JSON decode errors
+
         content = response.choices[0].message.content.strip()
+
+        # --- FIX FOR "Expecting value: line 1 column 1" ---
+        # This removes ```json ... ``` blocks if the AI includes them anyway
+        if content.startswith("```"):
+            content = re.sub(r"```json|```", "", content).strip()
+
+        if not content:
+            raise ValueError("AI returned an empty response")
+
         data = json.loads(content)
 
-        # Use .get() with defaults to prevent KeyErrors
         return {
             "Title": data.get("Title", title),
             "Artist": data.get("Artist", artist),
@@ -43,6 +52,14 @@ def get_metadata_from_ai(title, artist):
     except Exception as e:
         print(f"  [AI Error] Could not fetch metadata for {title}: {e}")
         return None
+
+def update_file_metadata(file_path, metadata):
+    """Writes metadata back to the file with strict string conversion."""
+    try:
+        audio = MP3(file_path, ID3=ID3)
+
+        if audio.tags is None:
+            audio
 
 def update_file_metadata(file_path, metadata):
     """Writes metadata back to the file. Returns True if successful, False otherwise."""
