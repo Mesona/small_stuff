@@ -28,13 +28,17 @@ def get_metadata_from_ai(title, artist):
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        data = json.loads(response.choices[0].message.content)
+        # Use .strip() and check for content to avoid JSON decode errors
+        content = response.choices[0].message.content.strip()
+        data = json.loads(content)
+
+        # Use .get() with defaults to prevent KeyErrors
         return {
-            "Title": data.get("Title"),
-            "Artist": data.get("Artist"),
-            "Album": data.get("Album"),
-            "Year": data.get("Year"),
-            "Genres": data.get("Genres")
+            "Title": data.get("Title", title),
+            "Artist": data.get("Artist", artist),
+            "Album": data.get("Album", "Unknown Album"),
+            "Year": data.get("Year", "Unknown Year"),
+            "Genres": data.get("Genres", "Unknown")
         }
     except Exception as e:
         print(f"  [AI Error] Could not fetch metadata for {title}: {e}")
@@ -43,24 +47,33 @@ def get_metadata_from_ai(title, artist):
 def update_file_metadata(file_path, metadata):
     """Writes metadata back to the file. Returns True if successful, False otherwise."""
     try:
+        # Load the MP3 file
         audio = MP3(file_path, ID3=ID3)
 
-        # Clear existing tags to ensure a clean update (optional but recommended)
-        # audio.tags.clear()
+        # --- FIX 1: Handle files with NO existing tags ---
+        # If audio.tags is None, the .add() method will fail.
+        if audio.tags is None:
+            audio.tags = ID3()
 
-        audio.tags.add(TIT2(encoding=3, text=metadata["Title"]))
-        audio.tags.add(TPE1(encoding=3, text=metadata["Artist"]))
-        audio.tags.add(TALB(encoding=3, text=metadata["Album"]))
-        audio.tags.add(TYER(encoding=3, text=metadata["Year"]))
+        # Update tags
+        audio.tags.add(TIT2(encoding=3, text=str(metadata["Title"])))
+        audio.tags.add(TPE1(encoding=3, text=str(metadata["Artist"])))
+        audio.tags.add(TALB(encoding=3, text=str(metadata["Album"])))
+        audio.tags.add(TYER(encoding=3, text=str(metadata["Year"])))
 
-        genres = [g.strip() for g in metadata["Genres"].split(",")]
-        audio.tags.add(TCON(encoding=3, text=genres[0]))
+        # --- FIX 2: Safer Genre Handling ---
+        genres_str = str(metadata.get("Genres", ""))
+        if genres_str:
+            genres = [g.strip() for g in genres_str.split(",") if g.strip()]
+            if genres:
+                audio.tags.add(TCON(encoding=3, text=genres[0]))
 
         audio.save()
         return True
     except Exception as e:
         print(f"  [Write Error] Could not save tags to {file_path.name}: {e}")
         return False
+
 
 def main():
     path = Path(MUSIC_DIR)
